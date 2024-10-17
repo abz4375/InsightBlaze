@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Container, Grid, Paper, Typography, Button } from '@mui/material';
 import Filters from './Filters';
+import Chart from './Chart'; // Import the Chart component
 
 function Dashboard() {
   const [data, setData] = useState([]);
@@ -118,6 +119,12 @@ function Dashboard() {
         </Grid>
         <Grid item xs={12}>
           <Button variant="contained" onClick={fetchData}>Refresh Data</Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Paper>
+            <Typography variant="h6">Chart</Typography>
+            <Chart data={filteredData} /> {/* Pass filteredData to Chart */}
+          </Paper>
         </Grid>
       </Grid>
     </Container>
