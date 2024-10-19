@@ -23,14 +23,13 @@ function Filters({
   };
 
   const pestOptions = ["Political", "Economic", "Social", "Technological"];
-  const swotOptions = ["Strengths", "Weaknesses", "Opportunities", "Threats"];
 
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} sm={6} md={3}>
         <TextField
           fullWidth
-          label="Search"
+          label="Search Title"
           variant="outlined"
           value={filters.search}
           onChange={(e) => handleFilterChange("search", e.target.value)}
@@ -122,23 +121,6 @@ function Filters({
           value={filters.source}
           onChange={(e) => handleFilterChange("source", e.target.value)}
         />
-      </Grid>
-      <Grid item xs={12} sm={6} md={3}>
-        <FormControl fullWidth variant="outlined">
-          <InputLabel>SWOT</InputLabel>
-          <Select
-            value={filters.swot}
-            onChange={(e) => handleFilterChange("swot", e.target.value)}
-            label="SWOT"
-          >
-            <MenuItem value="">All</MenuItem>
-            {swotOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
       </Grid>
     </Grid>
   );

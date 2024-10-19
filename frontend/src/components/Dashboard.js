@@ -1,11 +1,46 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { useTheme } from '@mui/material/styles';
 import axios from 'axios';
-import { Container, Grid, Paper, Typography, Button, Accordion, AccordionSummary, AccordionDetails, Tabs, Tab } from '@mui/material';
+import { Container, Grid, Paper, Typography, Button, Accordion, AccordionSummary, AccordionDetails, Tabs, Tab, Tooltip } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Filters from './Filters';
 import Chart from './Chart';
 
+import { Card, CardContent, CardActions, IconButton } from '@mui/material';
+import { OpenInNew as OpenInNewIcon } from '@mui/icons-material';
+import Carousel from 'react-material-ui-carousel';
+
+
+// // Create a custom theme
+// const theme = createTheme({
+//   typography: {
+//     fontFamily: "'Poppins', 'Roboto', 'Arial', sans-serif",
+//     h4: {
+//       fontWeight: 700,
+//       letterSpacing: '0.02em',
+//     },
+//     h6: {
+//       fontWeight: 600,
+//       letterSpacing: '0.01em',
+//     },
+//     button: {
+//       textTransform: 'none',
+//       fontWeight: 500,
+//     },
+//     body1: {
+//       fontSize: '1rem',
+//       lineHeight: 1.6,
+//     },
+//     body2: {
+//       fontSize: '0.875rem',
+//       lineHeight: 1.5,
+//     },
+//   },
+// });
+
 function Dashboard() {
+  const theme = useTheme();
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentChartType, setCurrentChartType] = useState('bar');
@@ -16,11 +51,11 @@ function Dashboard() {
     dateFrom: '',
     dateTo: '',
     endYear: '',
-    topics: [],
+    topics: ['market'],
     region: '',
-    pest: '',
+    pest: 'Political',
     source: '',
-    swot: '',
+    // swot: '',
   });
 
   const fetchData = useCallback(async () => {
@@ -63,7 +98,7 @@ function Dashboard() {
       region: '',
       pest: '',
       source: '',
-      swot: '',
+      // swot: '',
     });
   };
 
@@ -71,71 +106,138 @@ function Dashboard() {
     setCurrentChartType(newValue);
   };
 
+  // Updated color scheme
   const colorScheme = {
-    primary: '#3b82f6',
-    secondary: '#f3f4f6',
-    textPrimary: '#1f2937',
-    textSecondary: '#6b7280',
-    paperBackground: '#ffffff',
-    accent: '#f97316',
-    chartBackground: '#e5e7eb',
+    primary: theme.palette.primary.main,
+    secondary: theme.palette.background.default,
+    textPrimary: theme.palette.text.primary,
+    textSecondary: theme.palette.text.secondary,
+    paperBackground: theme.palette.background.paper,
+    accent: theme.palette.secondary.main,
+    chartBackground: theme.palette.mode === 'light' ? '#e0f2fe' : '#1e293b',
+    success: theme.palette.success.main,
+    warning: theme.palette.warning.main,
+    error: theme.palette.error.main,
   };
 
   return (
-    <Container maxWidth="xl" style={{ padding: '20px', backgroundColor: colorScheme.secondary }}>
-      <Typography variant="h4" gutterBottom style={{ color: colorScheme.textPrimary }}>
-        Dashboard
-      </Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} style={{ padding: '20px', backgroundColor: colorScheme.paperBackground }}>
-            <Typography variant="h6" style={{ color: colorScheme.textPrimary }}>Filters</Typography>
-            <Filters 
-              filters={filters} 
-              setFilters={setFilters} 
-              topics={topics}
-              regions={regions}
-              clearFilters={clearFilters}
-            />
-          </Paper>
-          <Paper elevation={3} style={{ padding: '20px', marginTop: '15px', backgroundColor: colorScheme.paperBackground }}>
-            <Typography variant="h6" style={{ color: colorScheme.textPrimary }}>Data Preview</Typography>
-            <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: colorScheme.textPrimary }} />}>
-                <Typography style={{ color: colorScheme.textSecondary }}>View Filtered Data</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <pre style={{ color: colorScheme.textPrimary, overflowX: 'scroll', height: '15vh' }}>
-                  {JSON.stringify(filteredData.slice(0, 5), null, 2)}
-                </pre>
-              </AccordionDetails>
-            </Accordion>
-            <Button 
-              variant="contained" 
-              onClick={fetchData} 
-              style={{ marginTop: '10px', backgroundColor: colorScheme.accent, color: '#fff' }}>
-              Refresh Data
-            </Button>
-          </Paper>
-        </Grid>
+    // <Container maxWidth="xl" style={{ padding: '0px', backgroundColor: colorScheme.secondary }}>
+    // <ThemeProvider theme={theme}>
+      <Container maxWidth="xl" style={{ padding: '0px', backgroundColor: colorScheme.secondary }}>
+        {/* <Typography variant="h4" gutterBottom style={{ color: colorScheme.primary, marginBottom: '4px', marginTop:'-10px' }}>
+          Dashboard
+          </Typography> */}
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={5}>
+            <Paper elevation={3} style={{ 
+              padding: '24px', 
+              backgroundColor: colorScheme.paperBackground,
+              borderRadius: '12px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            }}>
+              <Typography variant="h6" style={{ color: colorScheme.primary, marginBottom: '20px' }}>Filters</Typography>
+              <Filters 
+                filters={filters} 
+                setFilters={setFilters} 
+                topics={topics}
+                regions={regions}
+                clearFilters={clearFilters}
+                />
+            </Paper>
+            <Paper elevation={3} style={{ 
+              padding: '24px', 
+              marginTop: '10px', 
+              backgroundColor: colorScheme.paperBackground,
+              borderRadius: '12px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            }}>
+  <Typography variant="h6" style={{ color: colorScheme.primary, marginBottom: '20px' }}>Filtered Data <span style={{opacity:'40%', fontWeight:'normal'}}>(Top 8 Results)</span></Typography>
+  <Carousel>
+    {filteredData.slice(0, 8).map((item, index) => (
+      <Card key={index} style={{ height: '150px', display: 'flex', flexDirection: 'column', backgroundColor:colorScheme.chartBackground }}>
+        <CardContent>
+          <Typography variant="h6">{item.region}</Typography>
+          <Typography variant="body2">
+            {item.title.length > 100 ? item.title.substring(0, 100) + '...' : item.title}
+          </Typography>
+        </CardContent>
+        <CardActions style={{ marginTop: 'auto' }}>
+  <Tooltip title="Click to open source" arrow>
+    <IconButton 
+      size="small" 
+      onClick={() => window.open(item.url, '_blank')}
+      style={{ margin: 'auto', color: 'blue' }}
+    >
+      <OpenInNewIcon />
+    </IconButton>
+  </Tooltip>
+</CardActions>
 
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} style={{ padding: '20px', height: '100%', backgroundColor: colorScheme.paperBackground }}>
-            <Typography variant="h6" style={{ color: colorScheme.textPrimary }}>Chart</Typography>
-            <Tabs value={currentChartType} onChange={handleChartTypeChange} centered>
-              <Tab label="Bar" value="bar" style={{ color: colorScheme.textPrimary }} />
-              <Tab label="Line" value="line" style={{ color: colorScheme.textPrimary }} />
-              <Tab label="Pie" value="pie" style={{ color: colorScheme.textPrimary }} />
-              <Tab label="Bubble" value="bubble" style={{ color: colorScheme.textPrimary }} />
-              <Tab label="Scatter" value="scatter" style={{ color: colorScheme.textPrimary }} />
-              <Tab label="Heatmap" value="heatmap" style={{ color: colorScheme.textPrimary }} />
-              <Tab label="Timeline" value="timeline" style={{ color: colorScheme.textPrimary }} />
-            </Tabs>
-            <Chart data={filteredData} chartType={currentChartType} style={{ margin: '10px' }} />
-          </Paper>
+      </Card>
+    ))}
+  </Carousel>
+  <Button 
+    variant="contained" 
+    onClick={fetchData} 
+    style={{ 
+      marginTop: '20px', 
+      backgroundColor: colorScheme.primary, 
+      color: '#fff',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      padding: '10px 20px',
+      fontSize: '1rem',
+      fontWeight: 500,
+    }}
+    >
+    Refresh Data
+  </Button>
+</Paper>
+
+          </Grid>
+
+          <Grid item xs={12} md={7}>
+            <Paper elevation={3} style={{ 
+              padding: '24px', 
+              height: '100%', 
+              backgroundColor: colorScheme.paperBackground,
+              borderRadius: '12px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            }}>
+              <Typography variant="h6" style={{ color: colorScheme.primary, marginBottom: '20px' }}>Insights</Typography>
+              <Tabs 
+                value={currentChartType} 
+                onChange={handleChartTypeChange} 
+                centered
+                textColor="primary"
+                indicatorColor="primary"
+                style={{ marginBottom: '20px' }}
+                >
+                {['Bar', 'Line', 'Pie', 'Bubble', 'Scatter', 'Heatmap', 'Timeline'].map((type) => (
+                  <Tab 
+                  key={type} 
+                  label={type} 
+                  value={type.toLowerCase()} 
+                  style={{ 
+                    fontSize: '0.9rem', 
+                    fontWeight: 500,
+                    textTransform: 'none',
+                  }} 
+                  />
+                ))}
+              </Tabs>
+              <div style={{ 
+                backgroundColor: colorScheme.chartBackground, 
+                borderRadius: '12px', 
+                padding: '20px',
+              }}>
+                <Chart data={filteredData} chartType={currentChartType} theme={theme} style={{margin:'auto'}}/>
+              </div>
+            </Paper>
+          </Grid>
         </Grid>
-      </Grid>
-    </Container>
+      </Container>
+    // </ThemeProvider>
+    //             </Container>
   );
 }
 

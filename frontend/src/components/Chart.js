@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
-function Chart({ data, chartType }) {
+function Chart({ data, chartType, theme }) {
   const svgRef = useRef();
   const tooltipRef = useRef();
 
@@ -76,12 +76,12 @@ function Chart({ data, chartType }) {
       .attr("y", innerHeight) // Start from the bottom
       .attr("width", xScale.bandwidth())
       .attr("height", 0) // Start with height 0
-      .attr("fill", "#69b3a2")
+      .attr("fill", theme.palette.primary.main)
       .on("mouseover", function (event,d) {handleMouseOver(event,d);
-        d3.select(this).attr("fill", "#ff5722"); // Change color on hover
+        d3.select(this).attr("fill", theme.palette.secondary.main); // Change color on hover
       })
       .on("mouseout", function () {handleMouseOut();
-        d3.select(this).attr("fill", "#69b3a2"); // Revert color on mouse out
+        d3.select(this).attr("fill", theme.palette.primary.main); // Revert color on mouse out
       });
 
     // Animate the bars
@@ -120,7 +120,7 @@ function Chart({ data, chartType }) {
       .attr("y", -10)
       .attr("text-anchor", "middle")
       .attr("class", "chart-title")
-      .text("Bar Chart Title");
+      .text("Intensity vs. Title");
   };
 
   const renderLineChart = (g, innerWidth, innerHeight, data, handleMouseOver, handleMouseOut) => {
@@ -184,7 +184,7 @@ function Chart({ data, chartType }) {
       .attr("y", -10)
       .attr("text-anchor", "middle")
       .attr("class", "chart-title")
-      .text("Line Chart Title");
+      .text("Intensity vs. Title");
   };
 
   const renderPieChart = (g, innerWidth, innerHeight, data, handleMouseOver, handleMouseOut) => {
@@ -239,63 +239,72 @@ function Chart({ data, chartType }) {
 };
 
 
-  const renderBubbleChart = (g, innerWidth, innerHeight, data, handleMouseOver, handleMouseOut) => {
-    const xScale = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.intensity)])
-      .range([0, innerWidth]);
+const renderBubbleChart = (g, innerWidth, innerHeight, data, handleMouseOver, handleMouseOut) => {
+  // Define scales for x-axis (published time) and y-axis (region)
+  const xScale = d3.scaleTime()
+    .domain(d3.extent(data, d => new Date(d.published)))
+    .range([0, innerWidth]);
 
-    const yScale = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.intensity)])
-      .range([innerHeight, 0]);
+  const yScale = d3.scaleBand()
+    .domain(data.map(d => d.region))
+    .range([0, innerHeight])
+    .padding(0.1);
 
-    const bubbles = g.selectAll(".bubble")
-      .data(data)
-      .enter()
-      .append("circle")
-      .attr("class", "bubble")
-      .attr("cx", d => xScale(d.intensity))
-      .attr("cy", d => yScale(d.intensity))
-      .attr("r", 5)
-      .attr("fill", "#69b3a2")
-      .on("mouseover", function (event,d) {handleMouseOver(event,d);
-        d3.select(this).attr("fill", "#ff5722"); // Change color on hover
-      })
-      .on("mouseout", function () {handleMouseOut();
-        d3.select(this).attr("fill", "#69b3a2"); // Revert color on mouse out
-      });
+  // Calculate radius based on intensity using a scale
+  const radiusScale = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.intensity)]) // Use intensity here
+    .range([5, 20]); // Adjust minimum and maximum radius as needed
 
-    // Create axes with labels
-    g.append("g")
-      .attr("class", "x-axis")
-      .attr("transform", `translate(0, ${innerHeight})`)
-      .call(d3.axisBottom(xScale));
-      
-    g.append("g")
-      .attr("class", "y-axis")
-      .call(d3.axisLeft(yScale));
+  const bubbles = g.selectAll(".bubble")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("class", "bubble")
+    .attr("cx", d => xScale(new Date(d.published)))
+    .attr("cy", d => yScale(d.region) + yScale.bandwidth() / 2) // Center within band
+    .attr("r", d => radiusScale(d.intensity))
+    .attr("fill", "#69b3a2")
+    .on("mouseover", function (event, d) {
+      handleMouseOver(event, d);
+      d3.select(this).attr("fill", "#ff5722"); // Change color on hover
+    })
+    .on("mouseout", function () {
+      handleMouseOut();
+      d3.select(this).attr("fill", "#69b3a2"); // Revert color on mouse out
+    });
 
-    // Add labels
-    g.append("text")
-      .attr("x", innerWidth / 2)
-      .attr("y", innerHeight + margin.bottom - 10)
-      .attr("text-anchor", "middle")
-      .text("Intensity");
+  // Update axes labels
+  g.append("g")
+    .attr("class", "x-axis")
+    .attr("transform", `translate(0, ${innerHeight})`)
+    .call(d3.axisBottom(xScale));
 
-    g.append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", -margin.left + 20)
-      .attr("x", -innerHeight / 2)
-      .attr("text-anchor", "middle")
-      .text("Intensity");
+  g.append("g")
+    .attr("class", "y-axis")
+    .call(d3.axisLeft(yScale));
 
-    // Add chart title
-    g.append("text")
-      .attr("x", innerWidth / 2)
-      .attr("y", -10)
-      .attr("text-anchor", "middle")
-      .attr("class", "chart-title")
-      .text("Bubble Chart Title");
-  };
+  // Update labels
+  g.append("text")
+    .attr("x", innerWidth / 2)
+    .attr("y", innerHeight + margin.bottom - 10)
+    .attr("text-anchor", "middle")
+    .text("Published Time");
+
+  g.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", -margin.left + 20)
+    .attr("x", -innerHeight / 2)
+    .attr("text-anchor", "middle")
+    .text("Region");
+
+  // Add chart title
+  g.append("text")
+    .attr("x", innerWidth / 2)
+    .attr("y", -10)
+    .attr("text-anchor", "middle")
+    .attr("class", "chart-title")
+    .text("Region vs. Published Time vs. Intensity");
+};
 
   const renderScatterPlot = (g, innerWidth, innerHeight, data, handleMouseOver, handleMouseOut) => {
     const xScale = d3.scaleBand()
@@ -357,7 +366,7 @@ g.append("text")
       .attr("y", -10)
       .attr("text-anchor", "middle")
       .attr("class", "chart-title")
-      .text("Scatter Plot Title");
+      .text("Intensity vs. Topic");
   };
 
   const renderHeatmap = (g, innerWidth, innerHeight, data, handleMouseOver, handleMouseOut) => {
@@ -421,7 +430,7 @@ g.append("text")
       .attr("y", -10)
       .attr("text-anchor", "middle")
       .attr("class", "chart-title")
-      .text("Heatmap Title");
+      .text("Categories vs. Region vs. Intensity");
   };
 
   const renderTimeline = (g, innerWidth, innerHeight, data, handleMouseOver, handleMouseOut) => {
@@ -480,11 +489,11 @@ g.append("text")
       .attr("y", -10)
       .attr("text-anchor", "middle")
       .attr("class", "chart-title")
-      .text("Timeline Chart Title");
+      .text("Intensity vs. Time");
   };
 
   return (<>
-    <svg ref={svgRef} />
+    <svg ref={svgRef}/>
     <div ref={tooltipRef} className="tooltip" style={{ position: 'absolute', visibility: 'hidden', backgroundColor: '#fff', border: '1px solid #ccc', padding: '5px', borderRadius: '3px', pointerEvents: 'none' }}></div>
   </>
   );
