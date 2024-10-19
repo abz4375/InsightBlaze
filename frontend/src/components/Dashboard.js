@@ -135,7 +135,7 @@ function Dashboard() {
               borderRadius: '12px',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
             }}>
-              <Typography variant="h6" style={{ color: colorScheme.primary, marginBottom: '20px' }}>Filters</Typography>
+              <Typography variant="h6" style={{ color: colorScheme.primary, marginBottom: '20px', fontWeight:'bold' }}>Filters</Typography>
               <Filters 
                 filters={filters} 
                 setFilters={setFilters} 
@@ -156,8 +156,8 @@ function Dashboard() {
     {filteredData.slice(0, 8).map((item, index) => (
       <Card key={index} style={{ height: '150px', display: 'flex', flexDirection: 'column', backgroundColor:colorScheme.chartBackground }}>
         <CardContent>
-          <Typography variant="h6">{item.region}</Typography>
-          <Typography variant="body2">
+          <Typography variant="h6" style={{opacity:'50%'}}>{item.region}</Typography>
+          <Typography variant="body2" style={{fontWeight:'bold'}}>
             {item.title.length > 100 ? item.title.substring(0, 100) + '...' : item.title}
           </Typography>
         </CardContent>
@@ -203,7 +203,7 @@ function Dashboard() {
               borderRadius: '12px',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
             }}>
-              <Typography variant="h6" style={{ color: colorScheme.primary, marginBottom: '20px' }}>Insights</Typography>
+              <Typography variant="h6" style={{ color: colorScheme.primary, marginBottom: '20px', fontWeight:'bold' }}> Insights</Typography>
               <Tabs 
                 value={currentChartType} 
                 onChange={handleChartTypeChange} 
